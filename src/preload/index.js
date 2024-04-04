@@ -1,5 +1,5 @@
-import { contextBridge } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
+import { contextBridge, ipcRenderer } from 'electron'
 
 // Custom APIs for renderer
 const api = {}
@@ -10,7 +10,12 @@ const api = {}
 if (process.contextIsolated) {
   try {
     contextBridge.exposeInMainWorld('electron', electronAPI)
-    contextBridge.exposeInMainWorld('api', api)
+    contextBridge.exposeInMainWorld('electronAPI', {
+      openNewWindow: (url) => ipcRenderer.send('open-new-window', url),
+      closeCurrentView: () => ipcRenderer.send('close-current-view'),
+      navigateBack: () => ipcRenderer.send('navigate-back'),
+      navigateForward: () => ipcRenderer.send('navigate-forward')
+    })
   } catch (error) {
     console.error(error)
   }

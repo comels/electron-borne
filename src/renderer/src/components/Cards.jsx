@@ -6,8 +6,8 @@ import procuration from '../assets/images/procuration.png'
 import securite from '../assets/images/securite.png'
 import thesee from '../assets/images/thesee.png'
 
-const Card = ({ product }) => (
-  <button>
+const Card = ({ product, click }) => (
+  <button onClick={() => click(product.href)}>
     <div className="flex flex-col justify-between rounded-lg  bg-white p-2 shadow-lg">
       <img className="rounded-t-lg" src={product.imageSrc} alt="" />
 
@@ -21,6 +21,20 @@ const Card = ({ product }) => (
 )
 
 const Cards = () => {
+  const handleButtonClick = (url) => {
+    window.electronAPI.openNewWindow(url)
+  }
+  const handleCloseViewClick = () => {
+    console.log('Tentative de fermeture de la vue')
+    window.electronAPI.closeCurrentView() // Appelle la méthode pour fermer la vue
+  }
+  const handleBackClick = () => {
+    window.electronAPI.navigateBack()
+  }
+
+  const handleForwardClick = () => {
+    window.electronAPI.navigateForward()
+  }
   const products = [
     {
       id: 1,
@@ -56,19 +70,74 @@ const Cards = () => {
 
   return (
     <div
-      className="gradient-background flex min-h-screen w-full items-center justify-center bg-fixed bg-center py-10"
+      className="gradient-background min-h-screen "
       // style={{
       //   backgroundImage: `linear-gradient(rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.4)), url('/images/photo-14.png')`, // 1,4,5,7, 8, 12, 13, 14
       // }}
     >
-      <div className="mx-auto px-10">
-        <div className="grid grid-cols-3 gap-8">
-          <div className="flex items-center justify-center rounded-lg">
-            <img src={logo} alt="Logo" className="h-full w-full object-contain" />
+      <div className="flex justify-between mx-10 py-5">
+        <div className="flex gap-5">
+          <button onClick={handleBackClick} className="bg-white rounded-full p-1">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-6 w-6 text-black"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 19l-7-7 7-7"
+              />
+            </svg>
+          </button>
+
+          <button onClick={handleForwardClick} className="bg-white rounded-full p-1">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-6 w-6 text-black"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        </div>
+
+        <button onClick={handleCloseViewClick} className=" bg-white rounded-full p-1">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-6 w-6 text-black"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </button>
+      </div>
+      <div className="flex w-full items-center mt-20 justify-center bg-fixed bg-center">
+        <div className="mx-auto px-10">
+          <div className="grid grid-cols-3 gap-y-10 gap-x-10">
+            <div className="flex items-center justify-center rounded-lg">
+              <img src={logo} alt="Logo" className="h-full w-full object-contain" />
+            </div>
+            {products.map((product) => (
+              <Card
+                key={product.id}
+                product={product}
+                click={() => handleButtonClick(product.href)}
+              />
+            ))}
           </div>
-          {products.map((product) => (
-            <Card key={product.id} product={product} />
-          ))}
         </div>
       </div>
     </div>
