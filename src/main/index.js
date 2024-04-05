@@ -5,6 +5,15 @@ import { join } from 'path'
 let mainWindow
 let currentView
 
+// fonction pour fermer la view actuelle après 1 minute
+ipcMain.on('close-view-due-to-inactivity', () => {
+  if (currentView) {
+    mainWindow.removeBrowserView(currentView)
+    currentView = null
+  }
+})
+
+// fonction pour fermer la vue actuelle
 ipcMain.on('close-current-view', () => {
   if (currentView) {
     mainWindow.removeBrowserView(currentView)
@@ -12,18 +21,21 @@ ipcMain.on('close-current-view', () => {
   }
 })
 
+// fonction pour naviguer en arrière
 ipcMain.on('navigate-back', () => {
   if (currentView && currentView.webContents.canGoBack()) {
     currentView.webContents.goBack()
   }
 })
 
+// fonction pour naviguer en avant
 ipcMain.on('navigate-forward', () => {
   if (currentView && currentView.webContents.canGoForward()) {
     currentView.webContents.goForward()
   }
 })
 
+// fonction pour créer une nouvelle fenêtre
 function createNewWindow(url) {
   currentView = new BrowserView({
     webPreferences: {
@@ -40,12 +52,15 @@ function createNewWindow(url) {
     currentView.webContents.loadURL(url)
     return { action: 'deny' } // Empêche l'ouverture d'une nouvelle fenêtre
   })
+  currentView.webContents.openDevTools()
 }
 
+// écoute l'événement pour ouvrir une nouvelle fenêtre
 ipcMain.on('open-new-window', (event, url) => {
   createNewWindow(url)
 })
 
+// fonction pour créer la fenêtre principale
 function createWindow() {
   const { screen } = require('electron')
   const primaryDisplay = screen.getPrimaryDisplay()
@@ -77,9 +92,10 @@ function createWindow() {
   } else {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
-  // mainWindow.webContents.openDevTools()
+  mainWindow.webContents.openDevTools()
 }
 
+// écoute l'événement de fermeture de la fenêtre
 app.whenReady().then(() => {
   electronApp.setAppUserModelId('com.electron')
 
@@ -96,6 +112,7 @@ app.whenReady().then(() => {
   })
 })
 
+// ferme l'application lorsque toutes les fenêtres sont fermées
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit()
