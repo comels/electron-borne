@@ -1,4 +1,6 @@
 /* eslint-disable react/prop-types */
+import { ChevronLeft, ChevronRight, X } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import informe from '../assets/images/informe.png'
 import logo from '../assets/images/logo.png'
 import otv from '../assets/images/otv.png'
@@ -6,28 +8,45 @@ import procuration from '../assets/images/procuration.png'
 import securite from '../assets/images/securite.png'
 import thesee from '../assets/images/thesee.png'
 
-const Card = ({ product, click }) => (
-  <button onClick={() => click(product.href)}>
-    <div className="flex flex-col justify-between rounded-lg  bg-white p-2 shadow-lg">
-      <img className="rounded-t-lg" src={product.imageSrc} alt="" />
-
-      <div className="flex flex-grow items-center justify-center p-5">
-        <h5 className="rounded-md bg-[#000091] px-4 py-2 text-center text-base text-white hover:bg-[#1212FF] lg:text-xl">
-          {product.name}
-        </h5>
-      </div>
+// Composant d'une carte individuelle
+const Card = ({ site, onClick }) => (
+  <button
+    onClick={() => onClick(site.href)}
+    className="flex flex-col justify-between items-center rounded-lg bg-white p-2 shadow-lg"
+  >
+    <img src={site.imageSrc} alt={site.name} className="rounded-t-lg" />
+    <div className="flex flex-grow items-center justify-center p-5">
+      <h5 className="rounded-md bg-[#000091] px-4 py-2 text-center text-base text-white hover:bg-[#1212FF] lg:text-xl">
+        {site.name}
+      </h5>
     </div>
   </button>
 )
 
+// Composant pour afficher les cartes
 const Cards = () => {
+  const [isViewOpen, setIsViewOpen] = useState(false)
+
+  useEffect(() => {
+    const updateViewStatus = (status) => {
+      setIsViewOpen(status)
+    }
+
+    window.electronAPI.on('update-view-status', updateViewStatus)
+
+    return () => {
+      window.electronAPI.removeListener('update-view-status', updateViewStatus)
+    }
+  }, [])
+
   const handleButtonClick = (url) => {
     window.electronAPI.openNewWindow(url)
   }
+
   const handleCloseViewClick = () => {
-    console.log('Tentative de fermeture de la vue')
-    window.electronAPI.closeCurrentView() // Appelle la méthode pour fermer la vue
+    window.electronAPI.closeCurrentView()
   }
+
   const handleBackClick = () => {
     window.electronAPI.navigateBack()
   }
@@ -35,7 +54,9 @@ const Cards = () => {
   const handleForwardClick = () => {
     window.electronAPI.navigateForward()
   }
-  const products = [
+
+  // Sites à afficher
+  const sites = [
     {
       id: 1,
       href: 'https://www.maprocuration.gouv.fr/',
@@ -69,73 +90,30 @@ const Cards = () => {
   ]
 
   return (
-    <div
-      className="gradient-background min-h-screen "
-      // style={{
-      //   backgroundImage: `linear-gradient(rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.4)), url('/images/photo-14.png')`, // 1,4,5,7, 8, 12, 13, 14
-      // }}
-    >
-      <div className="flex justify-between mx-10 py-5">
-        <div className="flex gap-5">
-          <button onClick={handleBackClick} className="bg-white rounded-full p-1">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6 text-black"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15 19l-7-7 7-7"
-              />
-            </svg>
-          </button>
-
-          <button onClick={handleForwardClick} className="bg-white rounded-full p-1">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6 text-black"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
+    <div className="gradient-background min-h-screen flex flex-col justify-center">
+      {isViewOpen && (
+        <div className="flex justify-between absolute top-0 left-0 right-0 mx-10 py-5">
+          <div className="flex gap-5">
+            <button onClick={handleBackClick} className="bg-white rounded-full p-2">
+              <ChevronLeft size={20} />
+            </button>
+            <button onClick={handleForwardClick} className="bg-white rounded-full p-2">
+              <ChevronRight size={20} />
+            </button>
+          </div>
+          <button onClick={handleCloseViewClick} className="bg-white rounded-full p-2">
+            <X size={20} />
           </button>
         </div>
-
-        <button onClick={handleCloseViewClick} className=" bg-white rounded-full p-1">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6 text-black"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M6 18L18 6M6 6l12 12"
-            />
-          </svg>
-        </button>
-      </div>
-      <div className="flex w-full items-center mt-20 justify-center bg-fixed bg-center">
-        <div className="mx-auto px-10">
+      )}
+      <div className="flex w-full justify-center bg-fixed bg-center">
+        <div className="px-10">
           <div className="grid grid-cols-3 gap-y-10 gap-x-10">
             <div className="flex items-center justify-center rounded-lg">
               <img src={logo} alt="Logo" className="h-full w-full object-contain" />
             </div>
-            {products.map((product) => (
-              <Card
-                key={product.id}
-                product={product}
-                click={() => handleButtonClick(product.href)}
-              />
+            {sites.map((site) => (
+              <Card key={site.id} site={site} onClick={handleButtonClick} />
             ))}
           </div>
         </div>

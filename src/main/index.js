@@ -1,118 +1,142 @@
 import { electronApp, is, optimizer } from '@electron-toolkit/utils'
-import { BrowserView, BrowserWindow, app, ipcMain, shell } from 'electron'
+import { BrowserView, BrowserWindow, app, ipcMain, screen, shell } from 'electron'
 import { join } from 'path'
 
 let mainWindow
-let currentView
+let currentView = null // Définir explicitement à null pour clarifier l'état initial
+let inactivityTimer
 
-// fonction pour fermer la view actuelle après 1 minute
-ipcMain.on('close-view-due-to-inactivity', () => {
-  if (currentView) {
-    mainWindow.removeBrowserView(currentView)
-    currentView = null
+// Fonction pour créer la fenêtre principale
+function createWindow() {
+  try {
+    const primaryDisplay = screen.getPrimaryDisplay()
+    const { width, height } = primaryDisplay.workAreaSize
+
+    mainWindow = new BrowserWindow({
+      width,
+      height,
+      show: false,
+      // kiosk: true,
+      autoHideMenuBar: false,
+      webPreferences: {
+        preload: join(__dirname, '../preload/index.js'),
+        sandbox: false
+      }
+    })
+
+    mainWindow.on('ready-to-show', () => mainWindow.show())
+
+    mainWindow.webContents.setWindowOpenHandler((details) => {
+      shell.openExternal(details.url)
+      return { action: 'deny' }
+    })
+
+    const loadURL =
+      is.dev && process.env['ELECTRON_RENDERER_URL']
+        ? process.env['ELECTRON_RENDERER_URL']
+        : join(__dirname, '../renderer/index.html')
+    mainWindow.loadURL(loadURL)
+
+    // mainWindow.webContents.openDevTools()
+  } catch (error) {
+    console.error('Erreur lors de la création de la fenêtre principale:', error)
   }
+}
+
+// Fonction pour créer et gérer une nouvelle BrowserView
+function createNewWindow(url) {
+  if (currentView !== null) {
+    mainWindow.removeBrowserView(currentView) // Supprimer la vue actuelle si elle existe
+  }
+
+  currentView = new BrowserView({
+    webPreferences: {
+      preload: join(__dirname, '../preload/index.js'),
+      contextIsolation: true
+    }
+  })
+
+  mainWindow.setBrowserView(currentView)
+  currentView.setAutoResize({ width: true, height: true })
+
+  const { width, height } = mainWindow.getBounds()
+  currentView.setBounds({ x: 0, y: 80, width, height: height - 90 })
+  currentView.webContents.loadURL(url)
+
+  // Gérer les hyperliens pour rester dans la même BrowserView
+  currentView.webContents.setWindowOpenHandler(({ url }) => {
+    currentView.webContents.loadURL(url)
+    return { action: 'deny' }
+  })
+
+  currentView.webContents.openDevTools()
+
+  currentView.webContents.executeJavaScript(
+    `
+    document.addEventListener('mousemove', () => { window.electronAPI.sendActivityDetected(); });
+    document.addEventListener('scroll', () => { window.electronAPI.sendActivityDetected(); });
+    document.addEventListener('keydown', () => { window.electronAPI.sendActivityDetected(); });
+`,
+    true
+  )
+
+  // Notifier le renderer qu'une BrowserView est ouverte
+  mainWindow.webContents.send('update-view-status', true)
+}
+
+// Fonction pour réinitialiser le minuteur d'inactivité
+function resetInactivityTimer() {
+  clearTimeout(inactivityTimer)
+  inactivityTimer = setTimeout(() => {
+    closeCurrentView()
+  }, 3000) // 30 secondes
+}
+
+// IPC Handler pour réinitialiser le minuteur d'inactivité
+ipcMain.on('activity-detected', () => {
+  resetInactivityTimer()
 })
 
-// fonction pour fermer la vue actuelle
+// IPC Handlers pour fermer la vue, naviguer en arrière/en avant et ouvrir une nouvelle fenêtre
 ipcMain.on('close-current-view', () => {
-  if (currentView) {
-    mainWindow.removeBrowserView(currentView)
-    currentView = null
-  }
+  closeCurrentView()
 })
 
-// fonction pour naviguer en arrière
 ipcMain.on('navigate-back', () => {
   if (currentView && currentView.webContents.canGoBack()) {
     currentView.webContents.goBack()
   }
 })
 
-// fonction pour naviguer en avant
 ipcMain.on('navigate-forward', () => {
   if (currentView && currentView.webContents.canGoForward()) {
     currentView.webContents.goForward()
   }
 })
 
-// fonction pour créer une nouvelle fenêtre
-function createNewWindow(url) {
-  currentView = new BrowserView({
-    webPreferences: {
-      contextIsolation: true
-    }
-  })
-  mainWindow.setBrowserView(currentView)
-  currentView.setAutoResize({ width: true, height: true })
-  const { width, height } = mainWindow.getBounds()
-  currentView.setBounds({ x: 0, y: 80, width: width, height: height - 90 })
-  currentView.webContents.loadURL(url)
-  currentView.webContents.setWindowOpenHandler(({ url }) => {
-    // Charge l'URL dans la même BrowserView
-    currentView.webContents.loadURL(url)
-    return { action: 'deny' } // Empêche l'ouverture d'une nouvelle fenêtre
-  })
-  currentView.webContents.openDevTools()
-}
-
-// écoute l'événement pour ouvrir une nouvelle fenêtre
 ipcMain.on('open-new-window', (event, url) => {
   createNewWindow(url)
 })
 
-// fonction pour créer la fenêtre principale
-function createWindow() {
-  const { screen } = require('electron')
-  const primaryDisplay = screen.getPrimaryDisplay()
-  const { width, height } = primaryDisplay.workAreaSize
-  mainWindow = new BrowserWindow({
-    width: width,
-    height: height,
-    show: false,
-    kiosk: true,
-    autoHideMenuBar: false,
-    ...(process.platform === 'linux' ? {} : {}),
-    webPreferences: {
-      preload: join(__dirname, '../preload/index.js'),
-      sandbox: false
-    }
-  })
-
-  mainWindow.on('ready-to-show', () => {
-    mainWindow.show()
-  })
-
-  mainWindow.webContents.setWindowOpenHandler((details) => {
-    shell.openExternal(details.url)
-    return { action: 'deny' }
-  })
-
-  if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
-    mainWindow.loadURL(process.env['ELECTRON_RENDERER_URL'])
-  } else {
-    mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
+function closeCurrentView() {
+  if (currentView) {
+    mainWindow.removeBrowserView(currentView)
+    currentView = null
+    mainWindow.webContents.send('update-view-status', false)
   }
-  mainWindow.webContents.openDevTools()
 }
 
-// écoute l'événement de fermeture de la fenêtre
+// Configuration du cycle de vie de l'app
 app.whenReady().then(() => {
   electronApp.setAppUserModelId('com.electron')
-
-  app.on('browser-window-created', (_, window) => {
-    optimizer.watchWindowShortcuts(window)
-  })
-
-  ipcMain.on('ping', () => console.log('pong'))
-
+  app.on('browser-window-created', (_, window) => optimizer.watchWindowShortcuts(window))
   createWindow()
-
-  app.on('activate', function () {
-    if (BrowserWindow.getAllWindows().length === 0) createWindow()
-  })
 })
 
-// ferme l'application lorsque toutes les fenêtres sont fermées
+app.on('activate', () => {
+  if (BrowserWindow.getAllWindows().length === 0) createWindow()
+})
+
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit()
