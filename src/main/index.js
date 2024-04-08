@@ -20,7 +20,7 @@ function createWindow() {
       height,
       show: false, // La fenêtre ne s'affichera pas immédiatement après sa création.
       // kiosk: true, // Active le mode kiosque.
-      autoHideMenuBar: false, // Empêche la barre de menu de se cacher automatiquement.
+      autoHideMenuBar: true, // Empêche la barre de menu de se cacher automatiquement.
       webPreferences: {
         preload: join(__dirname, '../preload/index.js'), // Chemin vers le script de préchargement.
         sandbox: false // Désactive le mode sandbox pour permettre plus de fonctionnalités.
@@ -44,7 +44,7 @@ function createWindow() {
     mainWindow.loadURL(loadURL)
 
     // Ouvre les outils de développement pour faciliter le débogage.
-    if (is.dev) mainWindow.webContents.openDevTools()
+    // if (is.dev) mainWindow.webContents.openDevTools()
   } catch (error) {
     console.error('Erreur lors de la création de la fenêtre principale:', error)
   }
@@ -79,7 +79,7 @@ function createNewWindow(url) {
   })
 
   // Ouvre les outils de développement pour cette vue.
-  if (is.dev) currentView.webContents.openDevTools()
+  // if (is.dev) currentView.webContents.openDevTools()
 
   // Écouteurs d'événements pour détecter l'activité de l'utilisateur et réinitialiser le minuteur d'inactivité.
   currentView.webContents.executeJavaScript(
