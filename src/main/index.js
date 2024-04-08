@@ -91,9 +91,8 @@ function createNewWindow(url) {
     true
   )
 
-  currentView.webContents.once('did-finish-load', () => {
-    currentView.webContents.executeJavaScript(
-      `
+  currentView.webContents.executeJavaScript(
+    `
       let touchStartX = 0;
       let touchEndX = 0;
 
@@ -119,9 +118,8 @@ function createNewWindow(url) {
       document.addEventListener('touchstart', handleTouchStart, false);
       document.addEventListener('touchend', handleTouchEnd, false);
     `,
-      true
-    )
-  })
+    true
+  )
 
   // Informe le processus de rendu qu'une nouvelle vue est active.
   mainWindow.webContents.send('update-view-status', true)
