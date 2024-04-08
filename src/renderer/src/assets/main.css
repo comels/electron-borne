@@ -2,6 +2,29 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Ajouter la font Roboto à tout le projet */
+body {
+  font-family: Marianne, sans-serif;
+}
+
+@font-face {
+  font-family: 'Marianne';
+  src:
+    url('./polices/Marianne-Bold.woff2') format('woff2'),
+    url('./polices/Marianne-Bold.woff') format('woff');
+  font-weight: bold;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Marianne';
+  src:
+    url('./polices/Marianne-Regular.woff2') format('woff2'),
+    url('./polices/Marianne-Regular.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
 .gradient-background {
   background: hsla(240, 100%, 28%, 1);
   background: linear-gradient(180deg, hsla(240, 100%, 28%, 1) 0%, hsla(199, 77%, 74%, 1) 100%);

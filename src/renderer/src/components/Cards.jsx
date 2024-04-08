@@ -12,13 +12,13 @@ import thesee from '../assets/images/thesee.png'
 const Card = ({ site, onClick }) => (
   <button
     onClick={() => onClick(site.href)}
-    className="flex flex-col justify-between items-center rounded-lg bg-white p-2 shadow-lg"
+    className="flex flex-col justify-between items-center rounded-lg bg-white bg-opacity-60 shadow-lg"
   >
-    <img src={site.imageSrc} alt={site.name} className="rounded-t-lg" />
+    <img src={site.imageSrc} alt={site.name} className="rounded-lg" />
     <div className="flex flex-grow items-center justify-center p-5">
-      <h5 className="rounded-md bg-[#000091] px-4 py-2 text-center text-base text-white hover:bg-[#1212FF] lg:text-xl">
+      <h1 className="rounded-md bg-[#000091] px-5 py-2 text-center text-base text-white hover:bg-[#1212FF] lg:text-lg">
         {site.name}
-      </h5>
+      </h1>
     </div>
   </button>
 )

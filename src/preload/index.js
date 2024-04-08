@@ -6,6 +6,7 @@ const api = {
   navigateBack: () => ipcRenderer.send('navigate-back'),
   navigateForward: () => ipcRenderer.send('navigate-forward'),
   sendActivityDetected: () => ipcRenderer.send('activity-detected'),
+  sendSwipeAction: (action) => ipcRenderer.send('browser-view-swipe', action),
   // Ajouter une méthode pour écouter les événements IPC
   on: (channel, func) => {
     // Liste des chaînes de canal autorisées pour éviter des vulnérabilités
