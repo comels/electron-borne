@@ -19,8 +19,8 @@ function createWindow() {
       width,
       height,
       show: false, // La fenêtre ne s'affichera pas immédiatement après sa création.
-      // kiosk: true, // Active le mode kiosque.
-      autoHideMenuBar: true, // Empêche la barre de menu de se cacher automatiquement.
+      kiosk: false, // Active le mode kiosque.
+      autoHideMenuBar: false, // Empêche la barre de menu de se cacher automatiquement.
       webPreferences: {
         preload: join(__dirname, '../preload/index.js'), // Chemin vers le script de préchargement.
         sandbox: false // Désactive le mode sandbox pour permettre plus de fonctionnalités.
@@ -28,7 +28,11 @@ function createWindow() {
     })
 
     // Affiche la fenêtre une fois qu'elle est prête à être montrée.
-    mainWindow.on('ready-to-show', () => mainWindow.show())
+    mainWindow.on('ready-to-show', () => {
+      mainWindow.show()
+      mainWindow.focus()
+      mainWindow.setAlwaysOnTop(true, 'normal') // Garde la fenêtre au premier plan.
+    })
 
     // Gère les tentatives d'ouverture de nouvelles fenêtres par les pages web.
     mainWindow.webContents.setWindowOpenHandler((details) => {
@@ -44,7 +48,7 @@ function createWindow() {
     mainWindow.loadURL(loadURL)
 
     // Ouvre les outils de développement pour faciliter le débogage.
-    // if (is.dev) mainWindow.webContents.openDevTools()
+    if (is.dev) mainWindow.webContents.openDevTools()
   } catch (error) {
     console.error('Erreur lors de la création de la fenêtre principale:', error)
   }
@@ -91,36 +95,6 @@ function createNewWindow(url) {
     true
   )
 
-  currentView.webContents.executeJavaScript(
-    `
-      let touchStartX = 0;
-      let touchEndX = 0;
-
-      function handleTouchStart(event) {
-          touchStartX = event.changedTouches[0].screenX;
-      }
-
-      function handleTouchEnd(event) {
-          touchEndX = event.changedTouches[0].screenX;
-          handleSwipeGesture();
-      }
-
-      function handleSwipeGesture() {
-          if (touchEndX < touchStartX) {
-              // Swipe Left
-              window.electronAPI.sendSwipeAction('swipe-left');
-          } else if (touchEndX > touchStartX) {
-              // Swipe Right
-              window.electronAPI.sendSwipeAction('swipe-right');
-          }
-      }
-
-      document.addEventListener('touchstart', handleTouchStart, false);
-      document.addEventListener('touchend', handleTouchEnd, false);
-    `,
-    true
-  )
-
   // Informe le processus de rendu qu'une nouvelle vue est active.
   mainWindow.webContents.send('update-view-status', true)
 }
@@ -129,7 +103,7 @@ function createNewWindow(url) {
 function resetInactivityTimer() {
   clearTimeout(inactivityTimer)
   inactivityTimer = setTimeout(() => {
-    closeCurrentView()
+    closeCurrentViewWithClearCache()
   }, 180000) // Définit le délai d'inactivité à 3 minutes.
 }
 
@@ -173,9 +147,21 @@ ipcMain.on('open-new-window', (event, url) => {
 // Ferme la vue courante et informe le processus de rendu.
 function closeCurrentView() {
   if (currentView) {
-    mainWindow.removeBrowserView(currentView)
-    currentView = null // Réinitialise la vue courante à null.
-    mainWindow.webContents.send('update-view-status', false) // Informe que la vue est fermée.
+    currentView.webContents.session.clearStorageData().then(() => {
+      mainWindow.removeBrowserView(currentView)
+      currentView = null // Réinitialise la vue courante à null.
+      mainWindow.webContents.send('update-view-status', false) // Informe que la vue est fermée.
+    })
+  }
+}
+
+function closeCurrentViewWithClearCache() {
+  if (currentView) {
+    currentView.webContents.session.clearCache().then(() => {
+      mainWindow.removeBrowserView(currentView)
+      currentView = null // Réinitialise la vue courante à null.
+      mainWindow.webContents.send('update-view-status', false) // Informe que la vue est fermée.
+    })
   }
 }
 

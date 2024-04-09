@@ -24,16 +24,3 @@ body {
   font-weight: normal;
   font-style: normal;
 }
-
-.gradient-background {
-  background: hsla(240, 100%, 28%, 1);
-  background: linear-gradient(180deg, hsla(240, 100%, 28%, 1) 0%, hsla(199, 77%, 74%, 1) 100%);
-  background: -moz-linear-gradient(180deg, hsla(240, 100%, 28%, 1) 0%, hsla(199, 77%, 74%, 1) 100%);
-  background: -webkit-linear-gradient(
-    180deg,
-    hsla(240, 100%, 28%, 1) 0%,
-    hsla(199, 77%, 74%, 1) 100%
-  );
-  /* La propriété 'filter' est utilisée pour IE9 et versions antérieures */
-  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr="#000091", endColorstr="#89CFF0", GradientType=1 );
-}

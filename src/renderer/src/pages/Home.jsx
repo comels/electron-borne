@@ -1,7 +1,8 @@
-import Cards from '../components/Cards'
+// import CardsImage from '../components/CardsImage'
+import CardsQr from '../components/CardsQr'
 
 const Home = () => {
-  return <Cards />
+  return <CardsQr />
 }
 
 export default Home

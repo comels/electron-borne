@@ -12,7 +12,7 @@ const App = () => {
     const handleInactivity = () => setIsActive(false)
 
     // Définir un délai pour l'inactivité
-    let timeout = setTimeout(handleInactivity, 300000) // 5 minutes
+    let timeout = setTimeout(handleInactivity, 3000000) // 3000000 ms = 50 minutes
 
     // Ajouter des écouteurs pour divers événements d'activité
     window.addEventListener('mousemove', resetTimer)
@@ -23,7 +23,7 @@ const App = () => {
     function resetTimer() {
       clearTimeout(timeout)
       setIsActive(true)
-      timeout = setTimeout(handleInactivity, 300000) // Réinitialiser le timer à 5 minutes
+      timeout = setTimeout(handleInactivity, 3000000) // 3000000 ms = 50 minutes
     }
 
     // Nettoyer les écouteurs d'événements

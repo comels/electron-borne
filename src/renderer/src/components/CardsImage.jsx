@@ -24,7 +24,7 @@ const Card = ({ site, onClick }) => (
 )
 
 // Composant pour afficher les cartes
-const Cards = () => {
+const CardsImage = () => {
   const [isViewOpen, setIsViewOpen] = useState(false)
 
   useEffect(() => {
@@ -90,7 +90,7 @@ const Cards = () => {
   ]
 
   return (
-    <div className="gradient-background min-h-screen flex flex-col justify-center">
+    <div className="bg-gradient-to-r from-[#8acff0] to-[#000091] min-h-screen flex flex-col justify-center">
       {isViewOpen && (
         <div className="flex justify-between absolute top-0 left-0 right-0 mx-10 py-5">
           <div className="flex gap-5">
@@ -122,4 +122,4 @@ const Cards = () => {
   )
 }
 
-export default Cards
+export default CardsImage
