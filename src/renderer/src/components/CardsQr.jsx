@@ -95,7 +95,7 @@ const CardsQr = () => {
       )}
       <div className="flex w-full justify-center bg-fixed bg-center">
         <div className="px-10">
-          <div className="grid grid-cols-3 gap-y-5 gap-x-5">
+          <div className="grid grid-cols-3 gap-y-10 gap-x-5">
             <div className="flex items-center justify-center rounded-lg">
               <img src={logo} alt="Logo" className="h-full w-full object-contain" />
             </div>

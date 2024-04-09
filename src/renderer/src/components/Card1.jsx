@@ -3,7 +3,7 @@ import { ArrowRight } from 'lucide-react'
 
 const Card1 = ({ site, onClick }) => {
   return (
-    <button onClick={() => onClick(site.href)} className="h-full">
+    <button onClick={() => onClick(site.href)} className="h-full mx-auto">
       <div className="bg-white bg-opacity-80 hover:bg-opacity-60 rounded-md w-full max-w-sm h-full flex flex-col p-2">
         <div className="bg-[#000091] flex-grow flex">
           <img src={site.imageSrc} alt={site.name} className="h-40 w-40 m-auto rounded-3xl p-2" />
