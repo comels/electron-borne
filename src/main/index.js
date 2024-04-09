@@ -19,8 +19,8 @@ function createWindow() {
       width,
       height,
       show: false, // La fenêtre ne s'affichera pas immédiatement après sa création.
-      kiosk: false, // Active le mode kiosque.
-      autoHideMenuBar: false, // Empêche la barre de menu de se cacher automatiquement.
+      kiosk: true, // Active le mode kiosque.
+      autoHideMenuBar: true, // Empêche la barre de menu de se cacher automatiquement.
       webPreferences: {
         preload: join(__dirname, '../preload/index.js'), // Chemin vers le script de préchargement.
         sandbox: false // Désactive le mode sandbox pour permettre plus de fonctionnalités.
@@ -32,6 +32,7 @@ function createWindow() {
       mainWindow.show()
       mainWindow.focus()
       mainWindow.setAlwaysOnTop(true, 'normal') // Garde la fenêtre au premier plan.
+      mainWindow.setFullScreen(true) // Met la fenêtre en mode plein écran.
     })
 
     // Gère les tentatives d'ouverture de nouvelles fenêtres par les pages web.
@@ -48,7 +49,7 @@ function createWindow() {
     mainWindow.loadURL(loadURL)
 
     // Ouvre les outils de développement pour faciliter le débogage.
-    if (is.dev) mainWindow.webContents.openDevTools()
+    // if (is.dev) mainWindow.webContents.openDevTools()
   } catch (error) {
     console.error('Erreur lors de la création de la fenêtre principale:', error)
   }
