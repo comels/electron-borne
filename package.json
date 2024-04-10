@@ -2,7 +2,7 @@
   "name": "electron-borne",
   "version": "1.0.0",
   "description": "An Electron application with React",
-  "main": "/Users/mac/Documents/Code/electron/electron-borne/out/main/index.js",
+  "main": "./out/main/index.js",
   "author": "example.com",
   "homepage": "https://electron-vite.org",
   "scripts": {
@@ -30,7 +30,6 @@
     "@radix-ui/react-toggle-group": "^1.0.4",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
-    "country-flag-icons": "^1.5.11",
     "dotenv": "^16.4.5",
     "electron-squirrel-startup": "^1.0.0",
     "jquery": "^3.7.1",
@@ -41,16 +40,13 @@
     "touchswipe": "^1.6.0"
   },
   "devDependencies": {
-    "@electron-forge/cli": "^7.3.1",
     "@electron-forge/maker-deb": "^7.3.1",
     "@electron-forge/maker-rpm": "^7.3.1",
     "@electron-forge/maker-squirrel": "^7.3.1",
     "@electron-forge/maker-zip": "^7.3.1",
     "@electron-forge/plugin-auto-unpack-natives": "^7.3.1",
-    "@electron-forge/plugin-fuses": "^7.3.1",
     "@electron-toolkit/eslint-config": "^1.0.2",
     "@electron-toolkit/eslint-config-prettier": "^2.0.0",
-    "@electron/fuses": "^1.8.0",
     "@vitejs/plugin-react": "^4.2.1",
     "autoprefixer": "^10.4.19",
     "electron": "^28.2.0",
