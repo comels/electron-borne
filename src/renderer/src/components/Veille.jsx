@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import logo from '../assets/images/logo.png' // Assurez-vous que le chemin vers votre logo est correct
 
-const BouncingLogo = () => {
+const Veille = () => {
   const width = 600 // Largeur du logo, ajustez selon les besoins
   const posX = useRef(0)
   const posY = useRef(0)
@@ -41,7 +41,7 @@ const BouncingLogo = () => {
     <img
       ref={logoRef}
       src={logo}
-      alt="Bouncing Logo"
+      alt="logo"
       className="fixed"
       style={{
         width: `${width}px`
@@ -50,4 +50,4 @@ const BouncingLogo = () => {
   )
 }
 
-export default BouncingLogo
+export default Veille

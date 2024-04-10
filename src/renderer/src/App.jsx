@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import './assets/main.css'
-import Carrousel from './components/Carrousel'
+import { LanguageProvider } from './components/CardsQr'
+import Veille from './components/Veille'
 import Home from './pages/Home'
 
 const App = () => {
@@ -36,18 +37,20 @@ const App = () => {
   }, [])
 
   return (
-    <div>
-      {isActive ? (
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="*" element={<Home />} />
-          </Routes>
-        </BrowserRouter>
-      ) : (
-        <Carrousel />
-      )}
-    </div>
+    <LanguageProvider>
+      <div>
+        {isActive ? (
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="*" element={<Home />} />
+            </Routes>
+          </BrowserRouter>
+        ) : (
+          <Veille />
+        )}
+      </div>
+    </LanguageProvider>
   )
 }
 export default App

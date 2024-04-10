@@ -1,4 +1,7 @@
 import { contextBridge, ipcRenderer } from 'electron'
+const dotenv = require('dotenv')
+
+dotenv.config()
 
 const api = {
   openNewWindow: (url) => ipcRenderer.send('open-new-window', url),
@@ -6,6 +9,8 @@ const api = {
   navigateBack: () => ipcRenderer.send('navigate-back'),
   navigateForward: () => ipcRenderer.send('navigate-forward'),
   sendActivityDetected: () => ipcRenderer.send('activity-detected'),
+  quitApp: () => ipcRenderer.send('quit-app'),
+  getPassword: () => process.env.PASSWORD,
   // Ajouter une méthode pour écouter les événements IPC
   on: (channel, func) => {
     // Liste des chaînes de canal autorisées pour éviter des vulnérabilités
